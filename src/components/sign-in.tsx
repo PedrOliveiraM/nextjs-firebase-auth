@@ -1,6 +1,4 @@
 'use client'
-import { FaGithub } from 'react-icons/fa'
-import { FcGoogle } from 'react-icons/fc'
 
 import { signInFormData, signInFormSchema } from '@/@types/createUserFormSchema'
 import {
@@ -15,6 +13,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRive, useStateMachineInput } from '@rive-app/react-canvas'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
+import { LoginWithGithubButton } from './loginWithGithubButton'
+import { LoginWithGoogleButton } from './LoginWithGoogleButton'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 
@@ -144,14 +144,8 @@ export function SignInForm() {
             </div>
           </div>
           <CardFooter className="flex w-full flex-col gap-2">
-            <Button className="w-full bg-slate-900">
-              <FcGoogle />
-              Google
-            </Button>
-            <Button className="w-full">
-              <FaGithub />
-              Github
-            </Button>
+            <LoginWithGoogleButton />
+            <LoginWithGithubButton />
           </CardFooter>
         </Card>
       </div>
