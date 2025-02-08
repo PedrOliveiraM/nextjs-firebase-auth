@@ -1,3 +1,3 @@
 // eslint-disable-next-line prettier/prettier
-export { auth as middleware } from '@/auth/auth';
+export { auth as middleware } from '@/lib/auth';
 
