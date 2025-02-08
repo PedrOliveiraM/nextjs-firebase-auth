@@ -6,7 +6,7 @@ import { Button } from './ui/button'
 
 export function LoginWithGithubButton() {
   return (
-    <Button className="w-full bg-slate-900" onClick={() => signIn('google')}>
+    <Button className="w-full bg-slate-900" onClick={() => signIn('github')}>
       <FaGithub />
       Signin with Github
     </Button>
