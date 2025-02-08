@@ -1,11 +1,17 @@
+/* eslint-disable prettier/prettier */
 import { manageAuth } from '@/app/actions/manage-auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { auth } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
 export default async function Dashboard() {
   const session = await auth()
-  console.log('#session = ', session)
+
+  // Se o usuário não estiver autenticado, redireciona para a página de login
+  if (!session) {
+    redirect('/signIn')
+  }
 
   return (
     <>
@@ -15,10 +21,19 @@ export default async function Dashboard() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Avatar>
-                <AvatarImage src={undefined} alt={'User'} />
-                <AvatarFallback>{'U'}</AvatarFallback>
+                <AvatarImage src={session?.user?.image || ''} alt="User" />
+                <AvatarFallback>
+                  {session?.user?.name
+                    ? session.user.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                    : 'U'}
+                </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium text-gray-700">'null'</span>
+              <span className="text-sm font-medium text-gray-700">
+                {session?.user?.name || 'User'}
+              </span>
             </div>
             <form action={manageAuth}>
               <Button>{session ? 'Leave' : 'Login'}</Button>
