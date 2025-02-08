@@ -1,11 +1,6 @@
 'use client'
-
-import { SignIn } from '@/components/rive'
+import { redirect } from 'next/navigation'
 
 export default function Home() {
-  return (
-    <div>
-      <SignIn />
-    </div>
-  )
+  redirect('/signin')
 }

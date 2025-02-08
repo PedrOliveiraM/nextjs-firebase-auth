@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const createUserFormSchema = z.object({
+export const signInFormSchema = z.object({
   email: z
     .string({ message: 'Is not a string' })
     .email({ message: 'This email is not valid' })
@@ -12,4 +12,4 @@ export const createUserFormSchema = z.object({
     .nonempty('This field is required'),
 })
 
-export type createUserFormData = z.infer<typeof createUserFormSchema>
+export type signInFormData = z.infer<typeof signInFormSchema>

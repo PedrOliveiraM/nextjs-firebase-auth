@@ -2,10 +2,7 @@
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 
-import {
-  createUserFormData,
-  createUserFormSchema,
-} from '@/@types/createUserFormSchema'
+import { signInFormData, signInFormSchema } from '@/@types/createUserFormSchema'
 import {
   Card,
   CardContent,
@@ -23,7 +20,7 @@ import { Input } from './ui/input'
 
 const STATE_MACHINE_NAME = 'State Machine 1'
 
-export function SignIn() {
+export function SignInForm() {
   const { rive, RiveComponent } = useRive({
     src: '/river/login_screen_character.riv',
     autoplay: true,
@@ -35,7 +32,6 @@ export function SignIn() {
   const stateHandUp = useStateMachineInput(rive, STATE_MACHINE_NAME, 'hands_up')
 
   const stateCheck = useStateMachineInput(rive, STATE_MACHINE_NAME, 'Check')
-  const stateLook = useStateMachineInput(rive, STATE_MACHINE_NAME, 'Look')
 
   const handleSubmitSuccess = () => {
     if (stateSuccess) stateSuccess.fire()
@@ -50,8 +46,11 @@ export function SignIn() {
   }
 
   const handleFocusEmail = () => {
-    stateLook!.value = 45
-    if (stateCheck) stateCheck.fire()
+    if (stateCheck) stateCheck.value = 1000
+  }
+
+  const handleBlurEmail = () => {
+    if (stateCheck) stateCheck.value = 0
   }
 
   const handleFocusPassword = () => {
@@ -66,11 +65,11 @@ export function SignIn() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<createUserFormData>({
-    resolver: zodResolver(createUserFormSchema),
+  } = useForm<signInFormData>({
+    resolver: zodResolver(signInFormSchema),
   })
 
-  function createUser(data: createUserFormData) {
+  function createUser(data: signInFormData) {
     console.log(data)
 
     if (data.email === 'pedro@gmail.com' && data.password === '123456') {
@@ -80,11 +79,13 @@ export function SignIn() {
   }
 
   return (
-    <div className="flex items-center justify-center gap-4">
-      <main className="flex flex-col">
-        <RiveComponent style={{ width: '500px', height: '500px' }} />
-        <Card>
-          <CardHeader>
+    <main className="mb-5 flex h-screen w-full flex-col items-center justify-center">
+      <div className="">
+        <RiveComponent style={{ width: '300px', height: '300px' }} />
+      </div>
+      <div className="mb-10 flex w-full flex-col items-center">
+        <Card className="w-full max-w-sm">
+          <CardHeader className="py-3">
             <CardTitle className="flex justify-center text-xl">
               WELCOME
             </CardTitle>
@@ -96,9 +97,11 @@ export function SignIn() {
             <form className="space-y-2" onSubmit={handleSubmit(createUser)}>
               <Input
                 onFocus={handleFocusEmail}
-                {...register('email')}
                 type="email"
                 placeholder="email@example.com"
+                {...register('email', {
+                  onBlur: handleBlurEmail,
+                })}
               />
               {errors.email && (
                 <span className="text-red-500">{errors.email.message}</span>
@@ -106,18 +109,18 @@ export function SignIn() {
 
               <Input
                 onFocus={handleFocusPassword}
+                type="password"
+                placeholder="your password"
                 {...register('password', {
                   onBlur: handleBlurPassword,
                 })}
-                type="password"
-                placeholder="your password"
               />
               {errors.password && (
                 <span className="text-red-500">{errors.password.message}</span>
               )}
 
               <div className="flex w-full justify-end">
-                <Link href={'/'} className="text-zinc-500">
+                <Link href={'/forgot-password'} className="text-zinc-500">
                   Forgot password?
                 </Link>
               </div>
@@ -151,7 +154,7 @@ export function SignIn() {
             </Button>
           </CardFooter>
         </Card>
-      </main>
-    </div>
+      </div>
+    </main>
   )
 }
