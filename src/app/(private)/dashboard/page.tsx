@@ -8,7 +8,6 @@ import { redirect } from 'next/navigation'
 export default async function Dashboard() {
   const session = await auth()
 
-  // Se o usuário não estiver autenticado, redireciona para a página de login
   if (!session) {
     redirect('/signIn')
   }
@@ -21,7 +20,7 @@ export default async function Dashboard() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Avatar>
-                <AvatarImage src={session?.user?.image || ''} alt="User" />
+                <AvatarImage src={session!.user!.image || ''} alt={session!.user!.name || ''} />
                 <AvatarFallback>
                   {session?.user?.name
                     ? session.user.name
@@ -36,17 +35,19 @@ export default async function Dashboard() {
               </span>
             </div>
             <form action={manageAuth}>
-              <Button>{session ? 'Leave' : 'Login'}</Button>
+              <Button>{session ? 'LogOut' : 'Login'}</Button>
             </form>
           </div>
         </div>
       </header>
-      <h2 className="mb-4 text-2xl font-bold">Welcome to your Dashboard</h2>
-      <p className="text-gray-600">
-        This is where you can add your dashboard content. You can include
-        charts, statistics, or any other relevant information for your study
-        project.
-      </p>
+      <main className='container mx-auto px-4 py-8'>
+        <h2 className="mb-4 text-2xl font-bold">Welcome to your Dashboard</h2>
+        <p className="text-gray-600">
+          This is where you can add your dashboard content. You can include
+          charts, statistics, or any other relevant information for your study
+          project.
+        </p>
+      </main>
     </>
   )
 }
