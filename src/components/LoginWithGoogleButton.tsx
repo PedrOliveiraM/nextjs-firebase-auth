@@ -6,7 +6,10 @@ import { Button } from './ui/button'
 
 export function LoginWithGoogleButton() {
   return (
-    <Button className="w-full bg-slate-900" onClick={() => signIn('google')}>
+    <Button
+      className="w-full bg-slate-900"
+      onClick={() => signIn('google', { redirectTo: '/dashboard' })}
+    >
       <FcGoogle />
       Signin with Google
     </Button>
