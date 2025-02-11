@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await request.json()
-
     if (!userId) {
       return NextResponse.json(
         { error: 'User ID is required' },
@@ -12,10 +11,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await db.collection('page_access').add({
+    const res = await db.collection('page_access').add({
       userId,
       timestamp: new Date().toISOString(),
     })
+
+    if (!res) throw new Error('Failed to register access')
 
     return NextResponse.json(
       { message: 'Access registered successfully' },

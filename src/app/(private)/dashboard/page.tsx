@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 'use client'
-import { DownloadFormData, DownloadSchema } from '@/@types/downloadsDto'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,23 +10,47 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Download, Github } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useEffect, useRef, useState } from 'react'
 
 export default function Dashboard() {
   const { data: session } = useSession()
+
   const [filesDownloaded, setFilesDownloaded] = useState<number>(0)
   const [totalAccess, setTotalAccess] = useState<number>(0)
   const [totalUsers, setTotalUsers] = useState<number>(0)
 
+  const hasUpdatedAccess = useRef(false);
   useEffect(() => {
-    fetchData()
-  }, [])
+    if (session?.user?.name && !hasUpdatedAccess.current) {
+      updateTotalAccess();
+      fetchData();
+      hasUpdatedAccess.current = true;
+    }
+  }, [session]);
+
+  const updateTotalAccess = async () => {
+    try {
+      const userId = session?.user?.name || 'guest'
+
+      const response = await fetch('/api/stats/page-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        alert(`Failed to update: ${responseData.error}`);
+      }
+
+    } catch (error) {
+      alert(`Failed to update : ${error}`);
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -39,9 +62,9 @@ export default function Dashboard() {
 
       const { totalDownloads, totalAccess, totalUsers } = await response.json()
 
-      if (totalDownloads) setFilesDownloaded(totalDownloads)
-      if (totalAccess) setTotalAccess(totalAccess)
-      if (totalUsers) setTotalUsers(totalUsers)
+      if (totalDownloads !== filesDownloaded) setFilesDownloaded(totalDownloads);
+      if (totalAccess !== setTotalAccess) setTotalAccess(totalAccess);
+      if (totalUsers !== setTotalUsers) setTotalUsers(totalUsers);
 
     } catch (error) {
       alert('An unexpected error occurred. Please try again later.')
@@ -71,33 +94,6 @@ export default function Dashboard() {
       alert('An unexpected error occurred. Please try again later.');
     }
   };
-
-  const { register, handleSubmit, formState: { errors } } = useForm<DownloadFormData>({
-    resolver: zodResolver(DownloadSchema),
-  });
-
-  const onSubmit = async (data: DownloadFormData) => {
-    try {
-      const response = await fetch('/api/stats', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        alert(`Failed to register download: ${responseData.error}`);
-        return;
-      }
-
-      alert('Download registered successfully');
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('An unexpected error occurred. Please try again later.');
-    }
-  };
-
 
   if (!session) return <span>Loading...</span>
 
@@ -140,21 +136,6 @@ export default function Dashboard() {
               resources, and access the source code.
             </p>
           </div>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Card>
-              <CardContent className='flex flex-col gap-4 p-5'>
-                <Input type="text" placeholder='Filename' {...register('filename')} />
-                {errors.filename && <span className="text-red-500">{errors.filename.message}</span>}
-                <Input type="number" placeholder='Access quantity' {...register('quantity', {
-                  valueAsNumber: true
-                })} />
-                {errors.quantity && <span className="text-red-500">{errors.quantity.message}</span>}
-              </CardContent>
-              <CardFooter>
-                <Button type='submit'>Register</Button>
-              </CardFooter>
-            </Card>
-          </form>
         </div>
 
         <Card className="mb-8">
