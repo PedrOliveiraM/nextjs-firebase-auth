@@ -52,9 +52,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error processing request:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: `Internal server error ${error}` },
       { status: 500 }
     );
   }
@@ -89,7 +88,6 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ message: 'Quantity updated successfully' }, { status: 200 });
 
   } catch (error) {
-    console.error('Error updating quantity:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: `Internal Server Error ${error}` }, { status: 500 });
   }
 }

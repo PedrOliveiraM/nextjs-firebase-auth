@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 'use client'
+import { manageAuth } from '@/app/actions/manage-auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,19 +11,22 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Download, Github } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { Download, Github, LogOut } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
 export default function Dashboard() {
   const { data: session } = useSession()
+  const toast = useToast()
 
   const [filesDownloaded, setFilesDownloaded] = useState<number>(0)
   const [totalAccess, setTotalAccess] = useState<number>(0)
   const [totalUsers, setTotalUsers] = useState<number>(0)
 
   const hasUpdatedAccess = useRef(false);
+
   useEffect(() => {
     if (session?.user?.name && !hasUpdatedAccess.current) {
       updateTotalAccess();
@@ -43,12 +47,14 @@ export default function Dashboard() {
 
       const responseData = await response.json();
 
-      if (!response.ok) {
-        alert(`Failed to update: ${responseData.error}`);
-      }
+      if (!responseData.ok) throw new Error()
 
     } catch (error) {
-      alert(`Failed to update : ${error}`);
+      toast.toast({
+        title: "Error",
+        description: `Failed to update: ${error}`,
+        variant: 'destructive'
+      })
     }
   }
 
@@ -56,9 +62,7 @@ export default function Dashboard() {
     try {
       const response = await fetch('/api/stats')
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch posts')
-      }
+      if (!response.ok) throw new Error('Failed to fetch posts')
 
       const { totalDownloads, totalAccess, totalUsers } = await response.json()
 
@@ -66,9 +70,18 @@ export default function Dashboard() {
       if (totalAccess !== setTotalAccess) setTotalAccess(totalAccess);
       if (totalUsers !== setTotalUsers) setTotalUsers(totalUsers);
 
+      toast.toast({
+        title: "Success",
+        description: `Data fetch successful`,
+        variant: 'success'
+      })
+
     } catch (error) {
-      alert('An unexpected error occurred. Please try again later.')
-      console.error('Error fetching data:', error)
+      toast.toast({
+        title: "Error",
+        description: `Data fetch not found: ${error}`,
+        variant: 'destructive'
+      })
     }
   }
 
@@ -82,16 +95,21 @@ export default function Dashboard() {
 
       const responseData = await response.json();
 
-      if (!response.ok) {
-        alert(`Failed to update quantity: ${responseData.error}`);
-        return;
-      }
+      if (!response.ok) throw new Error(responseData.error);
 
-      alert('Doc updated successfully');
+      toast.toast({
+        title: "Success",
+        description: `Download registered successfully`,
+        variant: 'success'
+      })
+
       fetchData()
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('An unexpected error occurred. Please try again later.');
+      toast.toast({
+        title: "Error",
+        description: `Data fetch not found: ${error}`,
+        variant: 'destructive'
+      })
     }
   };
 
@@ -121,6 +139,12 @@ export default function Dashboard() {
               <span className="text-sm font-medium text-gray-700">
                 {session?.user?.name || 'User'}
               </span>
+              <form action={manageAuth}>
+                <Button>
+                  <LogOut />
+                  {session ? 'Leave' : 'Login'}
+                </Button>
+              </form>
             </div>
           </div>
         </div>

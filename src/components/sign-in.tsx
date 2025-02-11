@@ -70,8 +70,6 @@ export function SignInForm() {
   })
 
   function createUser(data: signInFormData) {
-    console.log(data)
-
     if (data.email === 'pedro@gmail.com' && data.password === '123456') {
       handleSubmitSuccess()
     }
