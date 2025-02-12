@@ -1,6 +1,6 @@
 'use client'
 
-import { signInFormData, signInFormSchema } from '@/@types/createUserFormSchema'
+import { signInFormData, signInFormSchema } from '@/@types/signInFormSchema'
 import {
   Card,
   CardContent,
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRive, useStateMachineInput } from '@rive-app/react-canvas'
+import { LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { LoginWithGithubButton } from './loginWithGithubButton'
@@ -127,7 +128,7 @@ export function SignInForm() {
                 className="w-full bg-blue-500 hover:bg-blue-600"
                 type="submit"
               >
-                Submit
+                <LogIn /> Log In
               </Button>
             </form>
           </CardContent>
@@ -142,6 +143,9 @@ export function SignInForm() {
             </div>
           </div>
           <CardFooter className="flex w-full flex-col gap-2">
+            <Button className="w-full bg-red-500 hover:bg-red-600" asChild>
+              <Link href={'/signup'}>Sign up</Link>
+            </Button>
             <LoginWithGoogleButton />
             <LoginWithGithubButton />
           </CardFooter>
