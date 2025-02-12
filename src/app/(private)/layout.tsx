@@ -1,4 +1,3 @@
-import { Toaster } from '@/components/ui/toaster'
 import type { Metadata } from 'next'
 import { SessionProvider } from 'next-auth/react'
 import { Geist } from 'next/font/google'
@@ -22,7 +21,6 @@ export default function DashboardLayout({
     <html lang="en">
       <SessionProvider>
         <body className={`${geistSans.variable} antialiased`}>{children}</body>
-        <Toaster />
       </SessionProvider>
     </html>
   )
