@@ -15,12 +15,13 @@ import { useToast } from '@/hooks/use-toast'
 import { Download, Github, LogOut } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export default function Dashboard() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const [isLoading, setIsLoading] = useState(true)
   const toast = useToast()
-
 
   const [filesDownloaded, setFilesDownloaded] = useState<number>(0)
   const [totalAccess, setTotalAccess] = useState<number>(0)
@@ -29,12 +30,18 @@ export default function Dashboard() {
   const hasUpdatedAccess = useRef(false);
 
   useEffect(() => {
+    if (status === 'authenticated') {
+      setIsLoading(false)
+    } else if (status === 'unauthenticated') {
+      redirect('/')
+    }
+
     if (session?.user?.name && !hasUpdatedAccess.current) {
       updateTotalAccess();
       fetchData();
       hasUpdatedAccess.current = true;
     }
-  }, [session]);
+  }, [status, session]);
 
   const updateTotalAccess = async () => {
     try {
@@ -114,8 +121,9 @@ export default function Dashboard() {
     }
   };
 
-  if (!session) return <span>Loading...</span>
-
+  if (isLoading || status === 'loading') {
+    return <span>Loading...</span>
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">

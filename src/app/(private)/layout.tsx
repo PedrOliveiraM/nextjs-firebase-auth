@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { SessionProvider } from 'next-auth/react'
 import { Geist } from 'next/font/google'
 
 const geistSans = Geist({
@@ -19,9 +18,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <html lang="en">
-      <SessionProvider>
-        <body className={`${geistSans.variable} antialiased`}>{children}</body>
-      </SessionProvider>
+      <body className={`${geistSans.variable} antialiased`}>{children}</body>
     </html>
   )
 }
