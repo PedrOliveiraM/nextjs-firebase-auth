@@ -16,10 +16,13 @@ import { Download, Github, LogOut } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { userInfo } from 'os'
 import { useEffect, useRef, useState } from 'react'
+
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
+
   const [isLoading, setIsLoading] = useState(true)
   const toast = useToast()
 
@@ -121,7 +124,7 @@ export default function Dashboard() {
     }
   };
 
-  if (isLoading || status === 'loading') {
+  if (isLoading || status === 'loading' || !userInfo) {
     return <span>Loading...</span>
   }
 
@@ -134,8 +137,8 @@ export default function Dashboard() {
             <div className="flex items-center space-x-2">
               <Avatar>
                 <AvatarImage
-                  src={session?.user?.image || ''}
-                  alt={session?.user?.name || ''}
+                  src={session?.user?.image || ' '}
+                  alt={session?.user?.name || 'User'}
                 />
                 <AvatarFallback>
                   {session?.user?.name
@@ -158,7 +161,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </header>
+      </header >
       <main className="container mx-auto px-4 py-8">
         <div className="flex justigy-between p-5">
           <div className="flex flex-col gap-3">
@@ -251,6 +254,6 @@ export default function Dashboard() {
           </CardFooter>
         </Card>
       </main>
-    </div>
+    </div >
   )
 }
