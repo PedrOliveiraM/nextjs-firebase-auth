@@ -1,6 +1,9 @@
 'use client'
-
-import { signInFormData, signInFormSchema } from '@/@types/signInFormSchema'
+import { signUpFormData, signUpFormSchema } from '@/@types/signUpFormSchema'
+import { signupWithPassword } from '@/app/actions/auth-signup-password'
+import { LoginWithGithubButton } from '@/components/loginWithGithubButton'
+import { LoginWithGoogleButton } from '@/components/LoginWithGoogleButton'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -9,23 +12,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRive, useStateMachineInput } from '@rive-app/react-canvas'
 import { LogIn } from 'lucide-react'
-import { signIn } from 'next-auth/react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { useForm } from 'react-hook-form'
-import { LoginWithGithubButton } from './loginWithGithubButton'
-import { LoginWithGoogleButton } from './LoginWithGoogleButton'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-
 const STATE_MACHINE_NAME = 'State Machine 1'
 
-export function SignInForm() {
-  const router = useRouter()
+export default function SignUpForm() {
   const toast = useToast()
   const { rive, RiveComponent } = useRive({
     src: '/river/login_screen_character.riv',
@@ -36,7 +33,6 @@ export function SignInForm() {
   const stateSuccess = useStateMachineInput(rive, STATE_MACHINE_NAME, 'success')
   const stateFail = useStateMachineInput(rive, STATE_MACHINE_NAME, 'fail')
   const stateHandUp = useStateMachineInput(rive, STATE_MACHINE_NAME, 'hands_up')
-
   const stateCheck = useStateMachineInput(rive, STATE_MACHINE_NAME, 'Check')
 
   const handleSubmitSuccess = () => {
@@ -69,48 +65,44 @@ export function SignInForm() {
 
   const {
     register,
+    handleSubmit,
     formState: { errors },
-  } = useForm<signInFormData>({
-    resolver: zodResolver(signInFormSchema),
+  } = useForm<signUpFormData>({
+    resolver: zodResolver(signUpFormSchema),
   })
 
-  const credentialsAction = async (formData: FormData) => {
+  async function createUser(data: signUpFormData) {
     try {
-      const credentials = Object.fromEntries(formData) as {
-        email: string
-        password: string
+      console.log('Data register: ', data)
+
+      const { email, password } = data
+
+      const status = await signupWithPassword(email, password)
+      console.log('Status: ', status)
+
+      if (!status) {
+        throw new Error('Error creating user')
       }
 
-      const result = await signIn('credentials', {
-        ...credentials,
-        redirectTo: '/dashboard',
-      })
+      handleSubmitSuccess()
 
-      console.log('Result', result)
-      if (!result?.error) {
-        handleSubmitSuccess()
-
-        toast.toast({
-          title: 'Success',
-          description: 'User logged in successfully',
-          variant: 'success',
-        })
-
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 2000)
-      } else {
-        handleSubmitFail()
-        throw new Error(result?.error || 'Erro desconhecido')
-      }
-    } catch (error) {
-      handleSubmitFail()
       toast.toast({
-        title: 'Error',
-        description:
-          error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: 'destructive',
+        title: 'Account created',
+        description: 'Your account has been created',
+        variant: 'success',
       })
+
+      redirect('signin')
+    } catch (error) {
+      if (error instanceof Error) {
+        handleSubmitFail()
+        console.log(error)
+        toast.toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        })
+      }
     }
   }
 
@@ -123,14 +115,26 @@ export function SignInForm() {
         <Card className="w-full max-w-sm">
           <CardHeader className="py-3">
             <CardTitle className="flex justify-center text-xl">
-              WELCOME
+              REGISTER
             </CardTitle>
             <CardDescription className="flex justify-center">
-              log in to continue
+              Sign up to continue
             </CardDescription>
           </CardHeader>
           <CardContent className="py-0">
-            <form className="space-y-2" action={credentialsAction}>
+            <form className="space-y-2" onSubmit={handleSubmit(createUser)}>
+              <Input
+                onFocus={handleFocusEmail}
+                type="text"
+                placeholder="Your name"
+                {...register('username', {
+                  onBlur: handleBlurEmail,
+                })}
+              />
+              {errors.email && (
+                <span className="text-red-500">{errors.email.message}</span>
+              )}
+
               <Input
                 onFocus={handleFocusEmail}
                 type="email"
@@ -162,10 +166,10 @@ export function SignInForm() {
               </div>
 
               <Button
-                className="w-full bg-blue-500 hover:bg-blue-600"
+                className="w-full bg-red-500 hover:bg-red-600"
                 type="submit"
               >
-                <LogIn /> Log In
+                Register
               </Button>
             </form>
           </CardContent>
@@ -180,8 +184,11 @@ export function SignInForm() {
             </div>
           </div>
           <CardFooter className="flex w-full flex-col gap-2">
-            <Button className="w-full bg-red-500 hover:bg-red-600" asChild>
-              <Link href={'/signup'}>Sign up</Link>
+            <Button className="w-full bg-blue-500 hover:bg-blue-600" asChild>
+              <Link href={'/signin'}>
+                <LogIn />
+                Sign In
+              </Link>
             </Button>
             <LoginWithGoogleButton />
             <LoginWithGithubButton />

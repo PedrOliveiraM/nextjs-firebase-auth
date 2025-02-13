@@ -16,12 +16,12 @@ import { Download, Github, LogOut } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { userInfo } from 'os'
 import { useEffect, useRef, useState } from 'react'
 
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
+  console.log('session', session)
 
   const [isLoading, setIsLoading] = useState(true)
   const toast = useToast()
@@ -33,13 +33,19 @@ export default function Dashboard() {
   const hasUpdatedAccess = useRef(false);
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      setIsLoading(false)
-    } else if (status === 'unauthenticated') {
-      redirect('/')
+    if (status === "loading") return;
+
+    if (status === "unauthenticated") {
+      console.log("User is not authenticated: ", session);
+      redirect("/");
     }
 
-    if (session?.user?.name && !hasUpdatedAccess.current) {
+    if (status === "authenticated") {
+      console.log("User is authenticated", session);
+      setIsLoading(false);
+    }
+
+    if (session?.user && !hasUpdatedAccess.current) {
       updateTotalAccess();
       fetchData();
       hasUpdatedAccess.current = true;
@@ -124,8 +130,8 @@ export default function Dashboard() {
     }
   };
 
-  if (isLoading || status === 'loading' || !userInfo) {
-    return <span>Loading...</span>
+  if (status === "loading" || isLoading) {
+    return <span>Carregando...</span>;
   }
 
   return (
