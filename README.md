@@ -34,6 +34,6 @@ Este projeto implementa a autenticação no Next.js utilizando o NextAuth.js v5,
 
 [![Instagram](https://img.shields.io/badge/Instagram-%231DA1F2.svg?&style=for-the-badge&logo=twitter&logoColor=white)](https://instagram.com/pedro.liveiram)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/pedro-oliveira-m/)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:pedropucmont@gmail.com)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:pedro.oliveira@monteirodev.com)
 
 #

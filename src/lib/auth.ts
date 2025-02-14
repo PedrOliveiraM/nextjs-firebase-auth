@@ -9,6 +9,15 @@ import { ZodError } from 'zod'
 import { firebaseCert } from './firebase'
 import clientApp from './firebaseClient'
 
+type CustomUser = {
+  id: string
+  name: string | null
+  email: string | null
+  image?: string | null
+  accessToken: string
+  refreshToken?: string
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google,
@@ -36,11 +45,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           )
 
           const user = userCredential.user
-          if (user) {
-            return { id: user.uid, email: user.email }
-          }
+          if (!user) return null
 
-          return null
+          console.log('token:', await user.getIdToken())
+          return {
+            id: user.uid,
+            name: user.displayName,
+            email: user.email,
+            image: user.photoURL,
+            accessToken: await user.getIdToken(),
+            refreshToken: user.refreshToken,
+          } as CustomUser
         } catch (error) {
           if (error instanceof ZodError) {
             console.error('Zod Validation Error:', error.errors)
@@ -57,5 +72,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: '/signIn',
     signOut: '/',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      console.log('@ JWT User:', user)
+      if (user) {
+        const customUser = user as CustomUser
+        token.accessToken = customUser.accessToken
+        token.refreshToken = customUser.refreshToken
+      }
+      console.log('$ TOKEN $ = ', token)
+      return token
+    },
+  },
+  session: {
+    strategy: 'jwt',
   },
 })

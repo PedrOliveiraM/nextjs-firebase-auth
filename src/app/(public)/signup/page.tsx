@@ -75,9 +75,9 @@ export default function SignUpForm() {
     try {
       console.log('Data register: ', data)
 
-      const { email, password } = data
+      const { username, email, password } = data
 
-      const status = await signupWithPassword(email, password)
+      const status = await signupWithPassword(username, email, password)
       console.log('Status: ', status)
 
       if (!status) {

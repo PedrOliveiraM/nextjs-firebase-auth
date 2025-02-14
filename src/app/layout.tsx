@@ -23,8 +23,8 @@ export default function RootLayout({
     <html lang="en">
       <SessionProvider>
         <body className={`${geistSans.variable} antialiased`}>
-          <Toaster />
           {children}
+          <Toaster />
         </body>
       </SessionProvider>
     </html>

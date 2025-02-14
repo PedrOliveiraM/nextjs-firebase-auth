@@ -83,32 +83,29 @@ export function SignInForm() {
 
       const result = await signIn('credentials', {
         ...credentials,
-        redirectTo: '/dashboard',
+        redirect: false,
       })
 
-      console.log('Result', result)
-      if (!result?.error) {
-        handleSubmitSuccess()
+      console.log('@@ Result', result)
 
-        toast.toast({
-          title: 'Success',
-          description: 'User logged in successfully',
-          variant: 'success',
-        })
+      if (result?.error) throw new Error(result?.error)
 
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 2000)
-      } else {
-        handleSubmitFail()
-        throw new Error(result?.error || 'Erro desconhecido')
-      }
+      handleSubmitSuccess()
+
+      toast.toast({
+        title: 'Success',
+        description: 'User logged in successfully',
+        variant: 'success',
+      })
+
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 2000)
     } catch (error) {
       handleSubmitFail()
       toast.toast({
         title: 'Error',
-        description:
-          error instanceof Error ? error.message : 'Erro desconhecido',
+        description: 'User not logged in: ' + (error as string),
         variant: 'destructive',
       })
     }
@@ -156,7 +153,7 @@ export function SignInForm() {
               )}
 
               <div className="flex w-full justify-end">
-                <Link href={'/forgot-password'} className="text-zinc-500">
+                <Link href={'/signup'} className="text-zinc-500">
                   Forgot password?
                 </Link>
               </div>
